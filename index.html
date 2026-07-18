@@ -189,7 +189,7 @@
 
     <div id="intro-card">
         <div class="envelope-icon">✉️</div>
-        <h1>Un message pour toi..</h1>
+        <h1>Un message pour toi...</h1>
         <p>Prends un court instant pour regarder ce qui se cache ici. Quelque chose a été créé tout spécialement pour toi.</p>
         <button id="open-btn">Ouvrir le message secret</button>
     </div>
@@ -266,7 +266,7 @@
         animateBg();
 
 
-        // --- 2. LE CŒUR DE TEXTE ---
+        // --- 2. LE CŒUR DE TEXTE OPTIMISÉ ---
         const canvas = document.getElementById('heartCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -278,17 +278,19 @@
         resizeCanvas();
 
         const words = [];
-        const wordCount = window.innerWidth < 768 ? 1100 : 850; 
+        const wordCount = window.innerWidth < 768 ? 1200 : 850; 
         let animationStarted = false;
 
         function getHeartPoint(t) {
             const isMobile = window.innerWidth < 768;
-            const scale = Math.min(canvas.width, canvas.height) / (isMobile ? 25 : 40); 
+            // Échelle réduite de 25 à 28 sur mobile pour recentrer le cœur sans qu'il ne déborde
+            const scale = Math.min(canvas.width, canvas.height) / (isMobile ? 28 : 40); 
             
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
             
-            const yOffset = isMobile ? 1.8 : 1.2;
+            // Centrage vertical millimétré
+            const yOffset = isMobile ? 1.5 : 1.2;
 
             return {
                 x: canvas.width / 2 + x * scale,
@@ -312,19 +314,17 @@
                 if (isMobile) {
                     this.fontSize = Math.floor(6 + Math.random() * 4);
                     
-                    // Analyse de la position sur le cœur pour corriger la capture d'écran
                     const t = this.targetT;
-                    // Détection des intersections (haut : près de PI/2 ou 3PI/2 en trigo inversée, bas : près de 0 ou 2PI)
                     const isIntersection = Math.abs(Math.sin(t)) < 0.3 || Math.cos(t) > 0.7;
 
                     if (isIntersection) {
-                        // Très peu de dispersion aux intersections pour tracer une ligne fine sans paquets compacts
-                        this.offsetX = (Math.random() - 0.5) * 4;
-                        this.offsetY = (Math.random() - 0.5) * 4;
+                        // Épaisseur augmentée aux intersections pour donner de la consistance (de 4 à 12)
+                        this.offsetX = (Math.random() - 0.5) * 12;
+                        this.offsetY = (Math.random() - 0.5) * 12;
                     } else {
-                        // Plus de dispersion contrôlée sur les côtés pour bien remplir les flancs
-                        this.offsetX = (Math.random() - 0.5) * 22;
-                        this.offsetY = (Math.random() - 0.5) * 22;
+                        // Épaisseur augmentée sur les flancs pour un cœur bien visible et charnu (de 22 à 32)
+                        this.offsetX = (Math.random() - 0.5) * 32;
+                        this.offsetY = (Math.random() - 0.5) * 32;
                     }
                 } else {
                     this.fontSize = Math.floor(10 + Math.random() * 8);
