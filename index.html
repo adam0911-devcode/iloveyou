@@ -23,16 +23,13 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            /* Curseur cœur par défaut */
             cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' style='font-size:16px'><text y='16'>❤️</text></svg>"), auto !important;
         }
 
-        /* Curseur cœur forcé sur les zones cliquables */
         button, a, [onclick] {
             cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' style='font-size:16px'><text y='16'>❤️</text></svg>"), pointer !important;
         }
 
-        /* Pluie de cœurs en arrière-plan */
         #bgCanvas {
             position: absolute;
             top: 0;
@@ -43,7 +40,6 @@
             pointer-events: none;
         }
 
-        /* Écran d'accueil */
         #intro-card {
             text-align: center;
             background: rgba(255, 255, 255, 0.04);
@@ -107,7 +103,6 @@
             box-shadow: 0 8px 25px rgba(255, 64, 129, 0.7);
         }
 
-        /* Zone de l'animation finale */
         #animation-container {
             position: absolute;
             top: 0;
@@ -132,7 +127,6 @@
             z-index: 5;
         }
 
-        /* Bloc texte central (Parfait pour Ordi) */
         #love-block {
             position: relative;
             z-index: 10;
@@ -168,7 +162,7 @@
             50% { transform: scale(1.04); }
         }
 
-        /* --- CHANGEMENTS UNIQUEMENT POUR TÉLÉPHONE --- */
+        /* --- STYLES ÉCRAN MOBILE UNIQUEMENT --- */
         @media (max-width: 767px) {
             #intro-card {
                 padding: 35px 25px;
@@ -180,30 +174,27 @@
             #open-btn { padding: 12px 30px; font-size: 14px; }
             
             #love-block {
-                width: 80%;
-                max-width: 320px;
-                gap: 6px;
+                width: 85%;
+                max-width: 290px;
+                gap: 8px;
             }
-            .main-title { font-size: 22px; letter-spacing: 2px; line-height: 1.3; }
-            .sub-title { font-size: 13px; }
+            /* Texte ajusté pour tenir parfaitement au centre sans s'étaler */
+            .main-title { font-size: 20px; letter-spacing: 1.5px; line-height: 1.4; }
+            .sub-title { font-size: 12px; line-height: 1.4; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Arrière-plan permanent (Pluie de particules) -->
     <canvas id="bgCanvas"></canvas>
 
-    <!-- Écran d'accueil -->
     <div id="intro-card">
         <div class="envelope-icon">✉️</div>
         <h1>Un message pour toi...</h1>
-        <p>Spécialement pour la meilleure des copines que j'aime très beaucoup.</p>
-        <!-- Remplacement du onclick classique par un event listener robuste pour mobile -->
+        <p>Prends un court instant pour regarder ce qui se cache ici. Quelque chose a été créé tout spécialement pour toi.</p>
         <button id="open-btn">Ouvrir le message secret</button>
     </div>
 
-    <!-- Zone du Grand Cœur -->
     <div id="animation-container">
         <div id="love-block">
             <h2 class="main-title">Pour ma petite reine, Irina</h2>
@@ -213,7 +204,7 @@
     </div>
 
     <script>
-        // --- 1. PLUIE DE PARTICULES EN ARRIÈRE-PLAN ---
+        // --- 1. ARRIÈRE-PLAN PARTICULES ---
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
         const particles = [];
@@ -233,7 +224,7 @@
             reset() {
                 this.x = Math.random() * bgCanvas.width;
                 this.y = -10;
-                this.size = window.innerWidth < 768 ? Math.random() * 4 + 3 : Math.random() * 5 + 4;
+                this.size = window.innerWidth < 768 ? Math.random() * 3 + 2.5 : Math.random() * 5 + 4;
                 this.speedY = Math.random() * 0.8 + 0.4;
                 this.speedX = Math.random() * 0.4 - 0.2;
                 this.opacity = Math.random() * 0.4 + 0.2;
@@ -248,7 +239,6 @@
                 bgCtx.save();
                 bgCtx.globalAlpha = this.opacity;
                 bgCtx.fillStyle = this.type === 'heart' ? '#ff4081' : '#ff80ab';
-                
                 if (this.type === 'heart') {
                     bgCtx.font = `${this.size * 1.5}px Arial`;
                     bgCtx.fillText('❤️', this.x, this.y);
@@ -261,7 +251,7 @@
             }
         }
 
-        const maxParticles = window.innerWidth < 768 ? 25 : 45;
+        const maxParticles = window.innerWidth < 768 ? 20 : 45;
         for (let i = 0; i < maxParticles; i++) {
             particles.push(new Particle());
         }
@@ -277,7 +267,7 @@
         animateBg();
 
 
-        // --- 2. ANIMATION DU GRAND CŒUR ---
+        // --- 2. GRAND CŒUR DE TEXTE DYNAMIQUE ---
         const canvas = document.getElementById('heartCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -289,13 +279,15 @@
         resizeCanvas();
 
         const words = [];
-        // Garde la grosse densité de 850 sur ordi, et adapte à 600 uniquement sur mobile
-        const wordCount = window.innerWidth < 768 ? 600 : 850; 
+        // Correction : 350 mots max sur mobile pour éviter l'effet "compact" et étouffant
+        const wordCount = window.innerWidth < 768 ? 350 : 850; 
         let animationStarted = false;
 
         function getHeartPoint(t) {
-            // Le scale s'adapte à l'écran uniquement si c'est un mobile
-            const scale = Math.min(canvas.width, canvas.height) / (window.innerWidth < 768 ? 50 : 40); 
+            // Correction : Cœur beaucoup plus grand sur mobile (divisé par 32 au lieu de 50) pour occuper l'espace extérieur
+            const isMobile = window.innerWidth < 768;
+            const scale = Math.min(canvas.width, canvas.height) / (isMobile ? 32 : 40); 
+            
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
             return {
@@ -314,11 +306,20 @@
                 this.targetT = Math.random() * Math.PI * 2;
                 this.speed = 0.015 + Math.random() * 0.02;
                 this.alpha = 0;
-                this.fontSize = window.innerWidth < 768 ? Math.floor(8 + Math.random() * 6) : Math.floor(10 + Math.random() * 8);
+                this.fontSize = window.innerWidth < 768 ? Math.floor(9 + Math.random() * 5) : Math.floor(10 + Math.random() * 8);
                 
-                const spread = window.innerWidth < 768 ? 35 : 50;
+                // Dispersion intelligente
+                const isMobile = window.innerWidth < 768;
+                const spread = isMobile ? 25 : 50; 
                 this.offsetX = (Math.random() - 0.5) * spread;
                 this.offsetY = (Math.random() - 0.5) * spread;
+
+                // Correction : Zone d'exclusion centrale stricte sur mobile pour protéger la phrase
+                if (isMobile) {
+                    // Si la dispersion pousse le mot trop vers l'intérieur (le centre), on le repousse vers l'extérieur
+                    if (Math.abs(this.offsetX) < 20) this.offsetX += this.offsetX >= 0 ? 20 : -20;
+                    if (Math.abs(this.offsetY) < 20) this.offsetY += this.offsetY >= 0 ? 20 : -20;
+                }
 
                 const r = 255;
                 const g = Math.floor(50 + Math.random() * 70);
@@ -381,11 +382,10 @@
             requestAnimationFrame(animateHeart);
         }
 
-        // Fix de sécurité pour garantir que le bouton réponde au clic sur n'importe quel appareil
         const mainButton = document.getElementById('open-btn');
         mainButton.addEventListener('click', revealLove);
         mainButton.addEventListener('touchend', function(e) {
-            e.preventDefault(); // Évite les doubles clics fantômes sur mobile
+            e.preventDefault();
             revealLove();
         });
     </script>
